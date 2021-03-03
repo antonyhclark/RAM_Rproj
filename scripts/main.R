@@ -4,4 +4,3 @@ microbenchmark::microbenchmark({
   source("scripts/Emergency_Admissions.R")
   source("scripts/output.R")
 },times = 1)
-

@@ -13,7 +13,7 @@ file_path_AE_breakdowns <-
 df_AE_breakdowns <- haven::read_sav(file_path_AE_breakdowns) %>% 
   janitor::clean_names() %>% 
   mutate(month2=lubridate::parse_date_time(month,orders = "b-Y"),.after=month) %>% 
-  mutate(fin_year=fin_year(month2),.after=month2) %>% 
+  mutate(fin_year=phsmethods::fin_year(month2),.after=month2) %>% 
   select(-c(cal_year,month_num,month,month2))
 
 # Wrangle data for HSCP of interest ####
