@@ -1,21 +1,23 @@
 library(magrittr)
 library(dplyr)
-library(xlsx)
+
 # uncomment below if you need to install devtools
 # usethis_source_url <- "https://cran.r-project.org/src/contrib/Archive/usethis/usethis_1.6.3.tar.gz"
 # install.packages(usethis_source_url,repos = NULL,type="source")
 # install.packages("devtools")
 
-devtools::install_github("antonyhclark/tc.utils")
+# https://github.com/antonyhclark/tc.utils
+devtools::install_github("antonyhclark/tc.utils",
+                         upgrade="never")
 library(tc.utils)
-
 hscp_of_interest <- "South Lanarkshire"
 ages_of_interest <- 0:17
+year_of_interest <- 2019
 
 if (file.exists("data/df_pop.csv")) {
   df_pop <- readr::read_csv("data/df_pop.csv")
 } else {
-  df_pop <- get_pop_data() %>% filter(year == 2019)
+  df_pop <- get_pop_data() %>% filter(year == year_of_interest)
   readr::write_csv(df_pop, "data/df_pop.csv")
 }
 
@@ -56,55 +58,19 @@ df_pop_0_17_summary <- Reduce(function(x, y, ...)
   list(df_pop_0_17, df_pop_0_17_simd_1, df_pop_0_17_urban)) %>%
   janitor::adorn_totals(name = hscp_of_interest)
 
+
+
 df_pop_0_17_summary <- df_pop_0_17_summary %>%
   mutate(
     pop_0_17_simd_1_prop = round(pop_0_17_simd_1 / pop_0_17, 2),
     pop_0_17_urban_prop = round(pop_0_17_urban / pop_0_17, 2)
   )
 
-# Rename columns for output ####
-my_colnames <- names(df_pop_0_17_summary)
-names(my_colnames) <- c(
-  "Locality",
-  "Populations aged 0-17",
-  "Populations aged 0-17 in most deprived quintile",
-  "Populations aged 0-17 living in an urban area",
-  "Populations aged 0-17 in most deprived quintile (proportion)",
-  "Populations aged 0-17 living in an urban area (proportion)"
+remove(
+  df_pop,
+  df_pop_0_17,
+  df_pop_0_17_simd_1,
+  df_pop_0_17_urban,
+  df_urban_rural,
+  sheet_pop_0_17_summary
 )
-names(df_pop_0_17_summary) <- names(my_colnames)
-
-
-# Write to Excel, set up ####
-wb <- createWorkbook()
-cs_rows <- CellStyle(wb) + Font(wb, isItalic = TRUE) # rowcolumns
-cs_blue <- CellStyle(wb) + Font(wb, color = "blue")
-cs_cols <-
-  CellStyle(wb) + Font(wb, isBold = TRUE) + Border() # header
-
-sheet_pop_0_17_summary <-
-  createSheet(wb, sheetName = "pop_0_17_summary")
-
-addDataFrame(
-  df_pop_0_17_summary,
-  sheet_pop_0_17_summary,
-  colnamesStyle = cs_cols,
-  colStyle = list(`1` = cs_blue),
-  row.names = F
-)
-output_file_path <- paste0("outputs/output_",
-                           format(Sys.time(), format = '%Y-%m-%d_%H%M'),
-                           ".xlsx")
-saveWorkbook(wb, output_file_path)
-
-my_colnames <- names(df_pop_0_17_summary)
-names(my_colnames) <- c(
-  "Locality",
-  "Populations aged 0-17",
-  "Populations aged 0-17 in most deprived quintile",
-  "Populations aged 0-17 living in an urban area",
-  "Populations aged 0-17 in most deprived quintile (proportion)",
-  "Populations aged 0-17 living in an urban area (proportion)"
-)
-
-
