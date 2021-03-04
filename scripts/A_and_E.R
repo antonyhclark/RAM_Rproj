@@ -1,6 +1,3 @@
-devtools::install_github("Public-Health-Scotland/phsmethods",
-                         upgrade = "never")
-
 # Parameters ####
 age_grp_of_interest <- "0-17"
 hscp_of_interest <- "South Lanarkshire"
