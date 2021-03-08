@@ -1,5 +1,6 @@
 library(magrittr)
 library(dplyr)
+library(tidyr)
 # uncomment below if you need to install devtools
 # usethis_source_url <- "https://cran.r-project.org/src/contrib/Archive/usethis/usethis_1.6.3.tar.gz"
 # install.packages(usethis_source_url,repos = NULL,type="source")
