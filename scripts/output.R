@@ -7,63 +7,28 @@ output_file_path <- paste0("outputs/output_",
                            format(Sys.time(), format = '%Y-%m-%d_%H%M'),
                            ".xlsx")
 
-# Create empty workbook object and cell styles ####
-wb_output <- openxlsx::createWorkbook()
+# Write demo tab to Excel output ####
+# Plain english column names obtained from named vector in meta_data.R script
+write_df_to_worksheet(df = df_pop_0_17_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
+                      wb_path = output_file_path,
+                      ws_name = "Children Demographics",
+                      tab_colour = "red")
 
-# Write worksheet for child pop inc simd and urban rural splits ####
-colour_child_demo <- "steelblue2"
-ws_child_demo <- openxlsx::addWorksheet(
-  wb=wb_output,
-  sheetName = "Pop 0-17 demographics",
-  gridLines = F,
-  tabColour = colour_demo,
-  zoom = 90
-)
+# Write A&E data to Excel ####
 
-setColWidths(wb_output,
-             ws_child_demo, 
-             1:ncol(df_pop_0_17_summary_out), 
-             widths = floor(300/ncol(df_pop_0_17_summary_out)))
-
-writeData(
-  wb=wb_output,
-  sheet=ws_child_demo,
-  x=df_pop_0_17_summary_out,
-  headerStyle = cs_col_headers,
-  name = deparse(quote(df_pop_0_17_summary_out))
-)
-
-saveWorkbook(wb_output, output_file_path)
-
-remove(wb_output, sheet_pop_0_17_summary)
+# Write emergency admission data to Excel ####
 
 
-# New worksheet for home care ####
-wb_output <- openxlsx::loadWorkbook(output_file_path)
-ws_homecare <- addWorksheet(wb = wb_output,
-                            sheetName = "Home Care",
-                            gridLines = F,
-                            tabColour = "yellow",
-                            zoom = 90)
+# Write home care data to Excel ####
+write_df_to_worksheet(df = df_hc_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
+                      wb_path = output_file_path,
+                      ws_name = "Home Care",
+                      tab_colour = "blue")
 
-writeData(wb = wb_output,
-          sheet = ws_homecare,
-          x = df_hc_summary,
-          headerStyle = cs_col_headers)
+df_pop_0_17_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.)))
 
-addStyle(wb_output,
-         ws_homecare,
-         rows = 1,cols = 1:ncol(df_hc_summary),
-         style = createStyle(fgFill = "yellow"),
-         stack = T)
+get_nice_colnames(colnames_dict,names(df_pop_0_17_summary))
 
-setColWidths(wb_output,
-             ws_homecare, 
-             1:ncol(df_hc_summary), 
-             widths = 20)
-
-
-saveWorkbook(wb_output, output_file_path,overwrite = T)
 
 
 

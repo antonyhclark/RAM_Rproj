@@ -88,10 +88,12 @@ df_hc_v2 <- df_hc %>%
 df_hc_summary <- df_hc_v2 %>% 
   group_by(hscp2019name,hscp_locality,provider_description) %>% 
   summarise(hc_hours=sum(hc_hours)) %>% 
-  tidyr::pivot_wider(names_from=provider_description,values_from=hc_hours) %>% 
+  tidyr::pivot_wider(names_from=provider_description,
+                     names_prefix = "provider_",
+                     values_from=hc_hours) %>% 
   filter(hscp2019name==hscp_of_interest) %>% 
   janitor::clean_names() %>% 
-  tidyr::replace_na(list(other_local_authority=0)) %>% 
+  tidyr::replace_na(list(provider_other_local_authority=0)) %>% 
   janitor::adorn_totals(name = hscp_of_interest)
 
 

@@ -1,8 +1,10 @@
 microbenchmark::microbenchmark({
   source("scripts/library.R")
+  source("scripts/misc_functions.R")
   source("scripts/pop_0_17_SIMD_urban_rural.R")
-  source("scripts/A_and_E.R")
-  source("scripts/Emergency_Admissions.R")
+  #source("scripts/A_and_E.R")
+  #source("scripts/Emergency_Admissions.R")
   source("scripts/home_care.R")
+  source("scripts/meta_data.R")
   source("scripts/output.R")
 },times = 1)
