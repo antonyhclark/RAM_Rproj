@@ -4,6 +4,10 @@ get_colours <- function(main_colour="grey"){
   return( colour_options )
 }
 
+n_row_pretty <- function(df){return(df %>% nrow() %>% formatC(.,big.mark = ","))}
+# Helper functions to get total of LTCs for each individual
+get_max <- function(date_vector){return(max(date_vector,na.rm = T))}
+get_min <- function(date_vector){return(min(date_vector,na.rm = T))}
 
 write_df_to_worksheet <- function(df,wb_path,ws_name,tab_colour="white"){
   # df <- df_pop_0_17_summary_out
@@ -43,11 +47,3 @@ write_df_to_worksheet <- function(df,wb_path,ws_name,tab_colour="white"){
   saveWorkbook(wb_obj, wb_path, overwrite = T)
   
 }
-
-my_var <- 1
-
-get_arg_name <- function(arg){
-  print(deparse(enexpr(arg)))
-}
-
-get_arg_name(my_var)

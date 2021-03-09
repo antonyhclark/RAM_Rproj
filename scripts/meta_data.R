@@ -16,3 +16,25 @@ colnames_dict <- c(
   "provider_third_sector" = "Provider: Third Sector", 
   "provider_other_local_authority" = "Provider: Other LA"
 )
+
+ltcs <- 
+  data.frame(
+    stringsAsFactors = FALSE,
+    ltc = c("arth","asthma","atrialfib",
+           "cancer","cvd","liver","copd","dementia","diabetes",
+           "epilepsy","chd","hefailure","ms","parkinsons",
+           "refailure","congen","bloodbfo","endomet","digestive"),
+    
+    
+    ltc_desc = c("Arthritis Artherosis","Asthma","Atrial Fibrillation",
+           "Cancer ",
+           "Cerebrovascular Disease (CVD)","Chronic Liver Disease",
+           "Chronic Obstructive Pulmonary Disease (COPD)",
+           "Dementia ","Diabetes",
+           "Epilepsy ","Coronary heart disease (CHD)",
+           "Heart Failure ","Multiple Sclerosis",
+           "Parkinsons","Renal Failure",
+           "Congenital Problems",
+           "Diseases of Blood and Blood Forming Organs",
+           "Other Endocrine Metabolic Diseases","Other diseases of Digestive system")
+  )
