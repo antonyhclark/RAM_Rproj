@@ -17,11 +17,13 @@ df_ea_hscp_of_interest <- df_ea_v2 %>%
          fin_year == fin_year_of_interest) %>%
   group_by(hscp_locality=locality) %>%
   summarise(emerg_admiss = sum(admissions)) %>% 
-  janitor::clean_names() %>% 
-  janitor::adorn_totals(name = hscp_of_interest)
+  janitor::clean_names()
+  
 
 # Join EAs to previous summary, compute rates
-df_pop_0_17_summary_v3 <- df_pop_0_17_summary_v2 %>% 
-  left_join(df_ea_hscp_of_interest) %>% 
-  mutate(ea_rate_1000 = round(emerg_admiss/pop_0_17*1000,2))
+df_ea_summary <- df_ea_hscp_of_interest %>% 
+  right_join(df_pop_sl_loc) %>% 
+  janitor::adorn_totals(name = hscp_of_interest) %>% 
+  mutate(ea_rate_1000 = round(emerg_admiss/pop*1000,2)) %>% 
+  relocate(pop,.before=emerg_admiss)
 remove(df_pop_0_17_summary_v2)

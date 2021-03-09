@@ -10,11 +10,6 @@ get_max <- function(date_vector){return(max(date_vector,na.rm = T))}
 get_min <- function(date_vector){return(min(date_vector,na.rm = T))}
 
 write_df_to_worksheet <- function(df,wb_path,ws_name,tab_colour="white"){
-  # df <- df_pop_0_17_summary_out
-  # wb_path <- output_file_path
-  # ws_name <- "test name"
-  # tab_colour <- "green"
-  
   # Header style
   cs_col_headers <- openxlsx::createStyle(
     fontName = "Calibri", fontSize = 10, fontColour = "black",
@@ -42,8 +37,5 @@ write_df_to_worksheet <- function(df,wb_path,ws_name,tab_colour="white"){
     headerStyle = cs_col_headers
     #name = eval(deparse(enexpr(df)))
   )
-  
-  
   saveWorkbook(wb_obj, wb_path, overwrite = T)
-  
 }

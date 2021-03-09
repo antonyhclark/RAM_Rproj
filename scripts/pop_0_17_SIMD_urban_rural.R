@@ -1,4 +1,3 @@
-hscp_of_interest <- "South Lanarkshire"
 ages_of_interest <- 0:17
 year_of_interest <- 2019
 
@@ -64,7 +63,6 @@ df_pop_0_17_summary <- df_pop_0_17_summary %>%
 
 # Clean Global Environment
 remove(
-  df_pop,
   df_pop_0_17,
   df_pop_0_17_simd_1,
   df_pop_0_17_urban,

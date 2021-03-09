@@ -48,11 +48,12 @@ df_source_individual_v2 <- df_source_individual_v1 %>%
   ) %>% 
   relocate(hscp2019,hscp_locality,datazone2011,n_ltc,n_ltc_factor,ltc_oldest,ltc_newest)
 
-df_source_individual_v2 %>% n_row_pretty()
-
-df_source_individual_v2 %>% 
+#df_source_individual_v2 %>% n_row_pretty()
+#df_source_individual_v2$n_ltc %>% max()
+df_ltc_summary <- df_source_individual_v2 %>% 
   filter(ltc_oldest>ltc_diagnosis_cut_off) %>% 
   count(hscp_locality,n_ltc_factor) %>% 
   pivot_wider(names_from = n_ltc_factor,
               names_prefix = "n LTC: ",
-              values_from = n)
+              values_from = n) %>% 
+  janitor::clean_names()

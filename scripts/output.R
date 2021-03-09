@@ -15,9 +15,16 @@ write_df_to_worksheet(df = df_pop_0_17_summary %>% setNames(.,nm=get_nice_colnam
                       tab_colour = "red")
 
 # Write A&E data to Excel ####
+write_df_to_worksheet(df = df_ae_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
+                      wb_path = output_file_path,
+                      ws_name = "A and E",
+                      tab_colour = "grey")
 
 # Write emergency admission data to Excel ####
-
+write_df_to_worksheet(df = df_ea_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
+                      wb_path = output_file_path,
+                      ws_name = "Emerg. Admissions",
+                      tab_colour = "yellow")
 
 # Write home care data to Excel ####
 write_df_to_worksheet(df = df_hc_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
@@ -25,10 +32,13 @@ write_df_to_worksheet(df = df_hc_summary %>% setNames(.,nm=get_nice_colnames(col
                       ws_name = "Home Care",
                       tab_colour = "blue")
 
-df_pop_0_17_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.)))
+# Write LTC data to Excel ####
 
-get_nice_colnames(colnames_dict,names(df_pop_0_17_summary))
-
+write_df_to_worksheet(df = df_ltc_summary %>% 
+                        setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
+                      wb_path = output_file_path,
+                      ws_name = "LTCs",
+                      tab_colour = "green")
 
 
 
