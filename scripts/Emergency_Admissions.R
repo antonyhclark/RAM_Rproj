@@ -26,4 +26,4 @@ df_ea_summary <- df_ea_hscp_of_interest %>%
   janitor::adorn_totals(name = hscp_of_interest) %>% 
   mutate(ea_rate_1000 = round(emerg_admiss/pop*1000,2)) %>% 
   relocate(pop,.before=emerg_admiss)
-remove(df_pop_0_17_summary_v2)
+#remove(df_pop_0_17_summary_v2)

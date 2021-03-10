@@ -1,11 +1,11 @@
-ages_of_interest <- 0:17
-year_of_interest <- 2019
 
-# Load population data
+
+# Load population data (get_pop_date reads from the stats lookup dir)
 if (file.exists("data/df_pop.csv")) {
   df_pop <- readr::read_csv("data/df_pop.csv")
 } else {
-  df_pop <- tc.utils::get_pop_data() %>% filter(year == year_of_interest)
+  df_pop <- tc.utils::get_pop_data() %>% filter(year == year_of_interest,
+                                                hscp2019name == hscp_of_interest)
   readr::write_csv(df_pop, "data/df_pop.csv")
 }
 

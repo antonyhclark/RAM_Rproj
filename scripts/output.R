@@ -11,7 +11,7 @@ output_file_path <- paste0("outputs/output_",
 # Plain english column names obtained from named vector in meta_data.R script
 write_df_to_worksheet(df = df_pop_0_17_summary %>% setNames(.,nm=get_nice_colnames(colnames_dict,names(.))),
                       wb_path = output_file_path,
-                      ws_name = "Children Demographics",
+                      ws_name = "Under 18 Demographics",
                       tab_colour = "red")
 
 # Write A&E data to Excel ####
