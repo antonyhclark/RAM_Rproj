@@ -1,16 +1,13 @@
-# Ref doc:
+# Ref docs:
 # https://www.isdscotland.org/Health-Topics/Health-and-Social-Community-Care/Health-and-Social-Care-Integration/Dataset/_docs/Source-SC2-Data-Specification-v1-0.pdf
 
 # https://www.isdscotland.org/Health-Topics/Health-and-Social-Community-Care/Health-and-Social-Care-Integration/docs/Revised-Source-Dataset-Definitions-and-Recording-Guidance-June-2018.pdf
-
-if (!all(c("tc.utils", "dplyr", "magrittr") %in% (.packages()))){source("scripts/library.R")}
 
 # follow syntax of 
 # /conf/LIST_analytics/Lanarkshire/Projects/Social Care/
 # Home Care/Syntax/1 - SOUTH demographics 2020-06-05.sps
 
-# 'GET FILE' # Demographics ####
-# This file links social care id to chi and geography (inc dz)
+# Get home care data from IR
 df_demo <- haven::read_sav(
   '/conf/LIST_analytics/Lanarkshire/Projects/Social Care/Home Care/Data/IR2020-00096 South Lanarkshire demographics.zsav'
 )
@@ -27,7 +24,9 @@ df_demo <- df_demo %>% mutate(age=tc.utils::get_age_from_dob(chi_date_of_birth))
 
 # Take a subset of columns and give better names for convenience
 df_demo_v2 <- df_demo %>% 
-  select(social_care_id, chi=seeded_chi_number, datazone2011=chi_datazone, age, gender=chi_gender_description, simd_sct_quintile)
+  select(social_care_id, chi=seeded_chi_number, 
+         datazone2011=chi_datazone, age, 
+         gender=chi_gender_description, simd_sct_quintile)
 
 # Get HSCP-Loc-DZ lookup file
 lk_hscp_loc_dz11 <- tc.utils::get_HSCP_Loc_DZ11_lookup() %>% 
@@ -86,12 +85,13 @@ df_hc_v2 <- df_hc %>%
 # df_hc_v2 %>% count(period) # why the big jump in records between Q2 and Q3?
 
 df_hc_summary <- df_hc_v2 %>% 
-  group_by(hscp2019name,hscp_locality,provider_description) %>% 
+  filter(hscp2019name==hscp_of_interest) %>% 
+  group_by(hscp_locality,provider_description) %>% 
   summarise(hc_hours=sum(hc_hours)) %>% 
   tidyr::pivot_wider(names_from=provider_description,
                      names_prefix = "provider_",
                      values_from=hc_hours) %>% 
-  filter(hscp2019name==hscp_of_interest) %>% 
+  
   janitor::clean_names() %>% 
   tidyr::replace_na(list(provider_other_local_authority=0)) %>% 
   janitor::adorn_totals(name = hscp_of_interest)

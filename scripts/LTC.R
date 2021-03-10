@@ -1,6 +1,5 @@
 # Ref
 # \\Freddy\DEPT\PHIBCS\PHI\Health & Social Care\Topics\Linkage\Reference Documents\File-layout-Individual-file.xlsx
-ltc_diagnosis_cut_off <- "2011-01-01"
 
 # Get HSCP-Loc-DZ lookup file
 lk_hscp_loc_dz11 <- tc.utils::get_HSCP_Loc_DZ11_lookup() %>% 
@@ -26,7 +25,7 @@ remove(path_source_individual)
 cols_of_interest <- rlang::parse_expr("c(hscp2019,datazone2011,arth:digestive,arth_date:digestive_date)")
 # Subset cols to reduce processing time
 df_source_individual_v1 <- df_source_individual %>% select(!!cols_of_interest)
-df_source_individual_v1 %>% n_row_pretty()
+#df_source_individual_v1 %>% n_row_pretty()
 
 
 # Filter for hscp, get total of LTCs, get earliest and latest LTC diagnosis
@@ -56,4 +55,5 @@ df_ltc_summary <- df_source_individual_v2 %>%
   pivot_wider(names_from = n_ltc_factor,
               names_prefix = "n LTC: ",
               values_from = n) %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  janitor::adorn_totals(name = hscp_of_interest)

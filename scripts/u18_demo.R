@@ -1,5 +1,3 @@
-
-
 # Load population data (get_pop_date reads from the stats lookup dir)
 if (file.exists("data/df_pop.csv")) {
   df_pop <- readr::read_csv("data/df_pop.csv")
@@ -44,14 +42,14 @@ df_pop_0_17_urban <- df_pop %>%
   summarise(pop_0_17_urban = sum(pop), .groups = "drop") %>%
   tidyr::complete(ur2_2016, hscp_locality,
                   fill = list(pop_0_17_urban = 0)) %>%
-  filter(ur2_2016 == 2) %>%
+  filter(ur2_2016 == 1) %>%
   select(-ur2_2016)
 
 # Merge 4 dataframes (by Locality)
 df_pop_0_17_summary <- Reduce(function(x, y, ...)
   merge(x, y, ...),
   list(df_pop_0_17, df_pop_0_17_simd_1, df_pop_0_17_urban)) %>%
-  janitor::adorn_totals(name = hscp_of_interest)
+  janitor::adorn_totals(name = hscp_of_interest) #add totals before computing rates
 
 
 # Add proportion columns
