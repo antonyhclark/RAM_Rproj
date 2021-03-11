@@ -7,6 +7,11 @@ fin_year_of_interest <- "2019/20" # used in A_and_E.R
 ltc_diagnosis_cut_off <- "2011-01-01" # used in LTC.R
 #age_group_of_interest <- "<18" #used in Emergency_Admissions.R
 
+proj_dir <- "/conf/LIST_analytics/Lanarkshire/Projects/Resource Allocation Model/RAM_Rproj"
+if ( getwd()!=proj_dir){setwd(proj_dir)}
+
+#getwd()
+
 # Load library and custom functions ####
 source("scripts/library.R") # load required packages
 source("scripts/misc_functions.R") # load helper functions

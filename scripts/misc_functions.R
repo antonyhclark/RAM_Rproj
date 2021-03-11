@@ -40,3 +40,12 @@ write_df_to_worksheet <- function(df,wb_path,ws_name,tab_colour="white"){
   )
   saveWorkbook(wb_obj, wb_path, overwrite = T)
 }
+
+check_packages <- function(required_packages=NULL){
+  if (is.null(required_packages)){
+    cat("\nOnly standard PHS packages are required.")
+    return(T)
+  } else if (!is.null(required_packages)){
+    cat("\nOne or ")
+  }
+}

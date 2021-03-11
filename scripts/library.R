@@ -1,4 +1,4 @@
-library(magrittr)
+require(magrittr)
 library(dplyr)
 library(tidyr)
 # uncomment below if you need to install devtools
