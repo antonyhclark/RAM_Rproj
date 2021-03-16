@@ -17,6 +17,7 @@ source("scripts/library.R") # load required packages
 source("scripts/misc_functions.R") # load helper functions
 
 # Load and process data ####
+source("scripts/pop_aggregations.R")
 source("scripts/u18_demo.R")
 source("scripts/A_and_E.R")
 source("scripts/Emergency_Admissions.R")

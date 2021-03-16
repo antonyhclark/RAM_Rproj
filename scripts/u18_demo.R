@@ -1,21 +1,3 @@
-# Load population data (get_pop_date reads from the stats lookup dir)
-if (file.exists("data/df_pop.csv")) {
-  df_pop <- readr::read_csv("data/df_pop.csv")
-} else {
-  df_pop <- tc.utils::get_pop_data() %>% filter(year == year_of_interest,
-                                                hscp2019name == hscp_of_interest)
-  readr::write_csv(df_pop, "data/df_pop.csv")
-}
-
-# Load urban-rural classification ref data
-df_urban_rural <- haven::read_sav(
-  "/conf/linkage/output/lookups/Unicode/Geography/Urban Rural Classification/datazone2011_urban_rural_2016.sav"
-) %>% janitor::clean_names()
-
-# Join urban-rural data to pop data
-df_pop <-
-  df_pop %>% left_join(df_urban_rural %>% select(datazone2011, ur2_2016))
-
 # Filter pop data for ages of interest and hscp of interest
 df_pop_0_17 <- df_pop %>%
   filter(hscp2019name == hscp_of_interest,
