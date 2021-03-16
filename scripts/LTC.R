@@ -12,8 +12,6 @@ hscp2019_of_interest <- lk_hscp_loc_dz11 %>%
   unique() %>% 
   pull(hscp2019)
 
-
-
 # Get Source Linkage Individual file for LTCs
 path_source_individual <- 
   "/conf/hscdiip/01-Source-linkage-files/source-individual-file-202021.fst"
@@ -22,17 +20,17 @@ remove(path_source_individual)
 
 # This method of defining a variable for column selection works:
 # cols_of_interest <- rlang::parse_expr("c(hscp2019,datazone2011,arth:digestive,arth_date:digestive_date)")
-cols_of_interest <- parse_expr("c(hscp2019,datazone2011,arth:digestive)")
-# Subset cols to reduce processing time
-# !! is required so that dplyr knows how to use cols_of_interest
-df_source_individual_v1 <- df_source_individual %>% select(!!cols_of_interest)
+# cols_of_interest <- parse_expr("c(hscp2019,datazone2011,arth:digestive)")
 
+# !! is required so that dplyr knows how to use cols_of_interest
+#df_source_individual_v1 <- df_source_individual %>% select(!!cols_of_interest)
+
+# Subset cols to reduce processing time
+df_source_individual_v1 <- df_source_individual %>% select(c(hscp2019,datazone2011,arth:digestive))
 #df_source_individual_v1 %>% n_row_pretty()
 
 
-# Filter for hscp, get total of LTCs, get earliest and latest LTC diagnosis
-# Apply cuts to n_ltcs
-# ?cut
+# Define buckets for n LTCs
 # n-1 labels for n breaks
 ltc_breaks <- c(
   "0" = 0, # [0,1) i.e. 0
