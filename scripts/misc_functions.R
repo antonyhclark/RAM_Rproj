@@ -32,8 +32,10 @@ write_df_to_worksheet <- function(df,wb_path,ws_name,tab_colour="white"){
     gridLines = F, tabColour = tab_colour, zoom = 90
   )
   
-  setColWidths(wb_obj, ws_obj, 1:ncol(df), 
-               widths = floor(255/ncol(df)))
+  setColWidths(wb_obj, 
+               ws_obj, 
+               1:ncol(df), 
+               widths = "auto")
   
   writeData(wb_obj, ws_obj, x=df,
     headerStyle = cs_col_headers
@@ -69,6 +71,21 @@ get_age_from_dob <- function(dob,
   return(age)
 }
 
+get_value_from_key <- function(key_value_vector,key){
+  if (!is.na(key_value_vector[key])){
+    return(key_value_vector[key])}
+  else
+    return(key)
+}
+
+
+get_nice_colnames <- function(name_dict,r_names){
+  nice_names <- sapply(r_names, get_value_from_key,key_value_vector=name_dict)
+  return(nice_names)
+}
+
+
+
 # copied from phsmethods::
 # https://github.com/Public-Health-Scotland/phsmethods/blob/master/R/fin_year.R
 
@@ -103,3 +120,5 @@ fin_year <- function(date) {
     dplyr::pull(.data$fyear)
   
 }
+
+

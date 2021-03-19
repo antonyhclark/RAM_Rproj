@@ -3,43 +3,9 @@
 
 # https://www.isdscotland.org/Health-Topics/Health-and-Social-Community-Care/Health-and-Social-Care-Integration/docs/Revised-Source-Dataset-Definitions-and-Recording-Guidance-June-2018.pdf
 
-# follow syntax of 
+# follows, to some extent, syntax of 
 # /conf/LIST_analytics/Lanarkshire/Projects/Social Care/
 # Home Care/Syntax/1 - SOUTH demographics 2020-06-05.sps
-
-# Get home care data from IR
-df_demo <- haven::read_sav(
-  '/conf/LIST_analytics/Lanarkshire/Projects/Social Care/Home Care/Data/IR2020-00096 South Lanarkshire demographics.zsav'
-)
-df_demo <- df_demo %>% mutate(age=get_age_from_dob(chi_date_of_birth))
-
-# Take a subset of columns and give better names for convenience
-df_demo_v2 <- df_demo %>% 
-  select(social_care_id, chi=seeded_chi_number, 
-         datazone2011=chi_datazone, age, 
-         gender=chi_gender_description, simd_sct_quintile)
-
-# Get HSCP-Loc-DZ lookup file
-lk_hscp_loc_dz11 <- tc.utils::get_HSCP_Loc_DZ11_lookup() %>% 
-  select(hscp2019name,hscp_locality,datazone2011)
-
-# Join HSCP, Locality (by dz)
-df_demo_v3 <- df_demo_v2 %>% 
-  left_join(lk_hscp_loc_dz11) %>% 
-  relocate(hscp2019name, hscp_locality, datazone2011,.before=social_care_id) %>% 
-  arrange(hscp2019name, hscp_locality, datazone2011,social_care_id)
-
-# Get home care hours by quarter-user (user identified by social care id)
-df_hc <- haven::read_sav(
-  "/conf/LIST_analytics/Lanarkshire/Projects/Social Care/Home Care/Data/IR2020-00096 South Lanarkshire Homecare.zsav"
-)
-
-# https://devhints.io/datetime # Good resource for date-time codes
-
-# Write home care hours data to csv for inspection in Excel
-# readr::write_csv(df_hc,paste0("~/fav/RAM_Rproj/data/df_hc_",
-#                               format(Sys.time(),format = "%Y-%m-%d_%H%M"),
-#                               ".csv"))
 
 # hc_service_provider ####
 # https://www.isdscotland.org/Health-Topics/Health-and-Social-Community-Care/Health-and-Social-Care-Integration/docs/Revised-Source-Dataset-Definitions-and-Recording-Guidance-June-2018.pdf
@@ -57,50 +23,108 @@ lk_provider <- data.frame(
   )
 )
 
+# Get HSCP-Loc-DZ lookup file
+lk_hscp_loc_dz11 <- get_HSCP_Loc_DZ11_lookup() %>% 
+  select(hscp2019name,hscp_locality,datazone2011)
+
+# Get home care demographic data from IR
+path_hc_demo <- 
+  paste0('/conf/LIST_analytics/Lanarkshire/Projects/Social Care/Home Care/Data/',
+         'IR2020-00096 South Lanarkshire demographics.zsav')
+
+
+df_demo <- haven::read_sav(path_hc_demo) %>% 
+  clean_names() %>% 
+  # subset columns for convenience
+  select(social_care_id, chi=seeded_chi_number,
+         dob = chi_date_of_birth,
+         datazone2011=chi_datazone,
+         gender=chi_gender_description, simd_sct_quintile) %>% 
+  # Join hscp2019name,hscp_locality
+  left_join(lk_hscp_loc_dz11) %>% 
+  # Bring geography columns to left for convenience
+  relocate(hscp2019name, hscp_locality, datazone2011,.before=social_care_id) %>% 
+  # Sort
+  arrange(hscp2019name, hscp_locality, datazone2011,social_care_id)
+#df_demo %>% View()
+# Read home care hours ####
+path_hc_demo %>% remove()
+path_hc <- 
+  paste0(
+    "/conf/LIST_analytics/Lanarkshire/Projects/Social Care/Home Care/Data/",
+    "IR2020-00096 South Lanarkshire Homecare.zsav"  
+  )
+df_hc <- haven::read_sav(path_hc) %>% clean_names()
+path_hc %>% remove() #clean env
+
+# where age is NA, replace with chi age
+df_hc$age[is.na(df_hc$age)] <- df_hc$chi_age[is.na(df_hc$age)]
+
+# df_hc$period %>% unique() %>% sort()
+# df_hc$financial_year %>% unique() %>% sort()
+
 # Join geography columns by social care id
-# df_demo_v3$social_care_id
-# df_hc$social_care_id
-df_hc_v2 <- df_hc %>% 
-  left_join(df_demo_v3,by="social_care_id") %>% 
+df_hc_demo <- df_hc %>% 
+  left_join(df_demo,by="social_care_id") %>% 
   select(-sending_location) %>% # drop sending location; it's always the same
   rename(provider_code=hc_service_provider) %>% 
-  left_join(lk_provider) 
+  left_join(lk_provider) %>% 
+  relocate(provider_description, .after=provider_code)
+#(df_hc_demo$hc_hours %>% sum()) == total_hc_hours_raw
+# Add age group
+df_hc_demo <- df_hc_demo %>% 
+  mutate(age_group=cut(age,
+                       breaks = age_breaks,
+                       labels = age_break_labels,
+                       right = FALSE))
 
-# %>% relocate(provider_description, .after=provider_code) # function not available in dplyr 0.8.x
+# add level for unknown age
+levels(df_hc_demo$age_group) <- c(levels(df_hc_demo$age_group),"unknown")
+# assign new level to records with unknown age
+df_hc_demo$age_group[is.na(df_hc_demo$age_group)] <- "unknown"
+# Visually check age_groups
+df_hc_demo %>% 
+  arrange(age) %>% 
+  group_by(age_group) %>% 
+  summarise(age_1st=first(age),
+            age_Lst=last(age),
+            n=n())
+#(df_hc_demo$hc_hours %>% sum()) == total_hc_hours_raw
+
+df_hc_summary <- full_join(
+  x= df_hc_demo %>% 
+    filter(hscp2019name==hscp_of_interest) %>% 
+    group_by(hscp_locality,age_group,provider_description,.drop=FALSE) %>% 
+    summarise(hc_hours=sum(hc_hours)),
+  y= df_pop %>% 
+    group_by(hscp_locality,age_group,.drop=FALSE) %>% 
+    summarise(pop=sum(pop)) 
+) %>% 
+  mutate(hc_rate=round(hc_hours/pop*1000,1))
 
 
-# df_hc_v2$hc_service_provider
-# check that user exists in demo file
-# df_hc_v2 %>% 
-#   mutate(matched_in_demo=!is.na(datazone2011)) %>% 
-#   janitor::tabyl(matched_in_demo)
+if (sum(df_hc_summary[df_hc_summary$age_group=="unknown","hc_hours"])==0){
+  df_hc_summary <- df_hc_summary %>% filter(age_group != "unknown")
+}
 
-# df_hc_v2 %>% count(period) # why the big jump in records between Q2 and Q3?
+# divide by 5 to account for the 5 repeats of pop on lhs
+sum(df_hc_summary$pop,na.rm = T)/5==sum(df_pop$pop)
+sum(df_hc_summary$hc_hours) == sum(df_hc_demo[df_hc_demo$hscp2019name==hscp_of_interest,
+                                          "hc_hours"],na.rm = T)
 
-df_hc_summary <- df_hc_v2 %>% 
-  filter(hscp2019name==hscp_of_interest) %>% 
-  group_by(hscp_locality,provider_description) %>% 
-  summarise(hc_hours=sum(hc_hours)) %>% 
-  pivot_wider(names_from=provider_description,
-                     names_prefix = "provider_",
-                     values_from=hc_hours) %>% 
-  
-  clean_names() %>% 
-  replace_na(list(provider_other_local_authority=0)) %>% 
-  adorn_totals(name = "total_all_providers", where="col") %>% 
-  left_join(df_pop_loc) %>% 
-  adorn_totals(name = hscp_of_interest) %>% 
-  mutate(rate_per_1000=total_all_providers/pop*1000)
+df_hc_summary_wide <- df_hc_summary %>% 
+  ungroup() %>% 
+  select(-hc_rate) %>% 
+  pivot_wider(names_from = provider_description,
+              values_from = hc_hours) %>% 
+  mutate(total_hc_hours:=rowSums(select(.,c(`LA/HSCP/NHS Board`:`Third Sector`)))) %>% 
+  adorn_totals(name=hscp_of_interest)
 
+if ( sum(df_hc_summary_wide$Other) == 0 ) {
+  df_hc_summary_wide <- df_hc_summary_wide %>% select(-Other)
+}
 
-# Checks ####
-# Check that there is one row per social care id in the demographics file
-# (df_demo %>% nrow()) == (df_demo %>% select(social_care_id) %>% unique() %>% nrow())
-# (df_demo %>% nrow()) == (df_demo %>% unique() %>% nrow())
-
-# write df to csv for inspection in Excel
-# readr::write_csv(df_demo,"~/fav/RAM_Rproj/data/df_sou_lan_demo.csv")
-# \\stats\LIST_analytics\Lanarkshire\Projects\Resource%20Allocation%20Model\RAM_Rproj\data\
-
+df_hc_summary_wide %>% 
+  mutate(hours_per_head_per_year=round(total_hc_hours/pop,1))
 
 
