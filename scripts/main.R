@@ -1,3 +1,8 @@
+# INSTRUCTIONS:
+# SELECT ALL AND PRESS CONTROL-ENTER OR PRESS THE SOURCE BUTTON IN RSTUDIO
+# OBSERVRE CONSOLE TO MONITOR PROGRESS / BE ALERTED TO ERRORS IN SOURCED SCRIPTS
+
+
 start_time <- Sys.time()
 # small function for printing messages to console
 cat_paste0 <- function(...) cat(paste0(...))
@@ -29,7 +34,7 @@ list_of_scripts <- c(
   "home_care.R",
   "LTC.R",
   # Output to Excel
-  "meta_data.R",
+  "meta_data.R", # meta_data maps syntactic column names to plain english ones
   "output.R"
 )
 
